@@ -1,0 +1,32 @@
+{
+  "name": "angular-project",
+  "version": "0.0.0",
+  "homepage": "https://github.com/Leo-ilin/angular-project",
+  "authors": [
+    "leo <leonid3g@gmail.com>"
+  ],
+  "description": "Bootstrap project for angular apps",
+  "main": "main.js",
+  "keywords": [
+    "angular",
+    "ng-app"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "~3.3.2",
+    "angular": "~1.3.12",
+    "basket.js": "~0.5.1",
+    "restangular": "~1.4.0",
+    "angular-ui-router": "~0.2.13",
+    "angular-loading-bar": "~0.6.0",
+    "angular-local-storage": "~0.1.5",
+    "basket": "https://github.com/addyosmani/basket.js"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
