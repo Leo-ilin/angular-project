@@ -14,7 +14,7 @@ App.DEBUG = true;
 		{ url: 'vendors/angular/angular.js', unique: '1.3.10' },
 		{ url: 'vendors/angular-animate/angular-animate.min.js' },
 		{ url: 'vendors/angular-local-storage/dist/angular-local-storage.min.js', unique: '0.1.4' },
-		{ url: 'vendors/ocLazyLoad/dist/ocLazyLoad.min.js' },
+		{ url: 'vendors/oclazyload/dist/ocLazyLoad.min.js' },
 		{ url: 'vendors/angular-ui-router/release/angular-ui-router.min.js', unique: '0.2.13' },
 		{ url: 'vendors/restangular/dist/restangular.min.js', unique: '1.4.0' },
 		{ url: 'vendors/angular-loading-bar/build/loading-bar.min.js' }
