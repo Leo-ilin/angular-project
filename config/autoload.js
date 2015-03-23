@@ -23,13 +23,15 @@ angular
 					{
 						name: 'index',
 						files: [
-							{ url: 'modules/index/index.js' }
+							'modules/index/index.js'
 						]
 					},
 					{
 						name: 'user',
+						serie: true,
 						files: [
-							{ url: 'modules/user/user.js' }
+							'modules/user/user.js',
+							'modules/user/controllers/loginController.js'
 						]
 					}
 				]

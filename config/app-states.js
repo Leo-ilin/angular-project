@@ -10,11 +10,12 @@ angular
 					url: '/',
 					templateUrl: 'layouts/main.html',
 					resolve: {
-						_loadChartModule: function($ocLazyLoad) {
+						_loadModule: function($ocLazyLoad) {
 							return $ocLazyLoad.load('index')
 						}
 					},
-					authenticate: false
+					authenticate: false,
+					pageTitle: 'Главная страница'
 				})
 				.state('user', {
 					abstract: true,
@@ -29,23 +30,17 @@ angular
 				.state('user.login', {
 					url: '/login',
 					templateUrl: 'modules/user/views/login.html',
-					controller: 'loginController',
+					controller: 'LoginController',
 					resolve: {
-						_loadLoginCtrl: function($ocLazyLoad){
-							return $ocLazyLoad.load({
-								name: 'user',
-								files: [
-									{ url: 'modules/user/controllers/loginController.js' }
-								]
-							})
-						}
 					},
-					authenticate: false
+					authenticate: false,
+					pageTitle: 'Авторизация'
 				})
 				.state('404', {
 					url: '/404',
 					templateUrl: 'layouts/404.html',
-					authenticate: false
+					authenticate: false,
+					pageTitle: 'Страница не найдена'
 				})
 
 			$urlRouterProvider.when("", "/");
@@ -65,31 +60,20 @@ angular
 
 			$rootScope.$on('$stateChangeStart',
 				function(event, toState, toParams, fromState, fromParams){
-					console.log('Loading state', toState.name);
-					//AUTHENTICATION CHECK
-					if(toState.authenticate !== false && !authService.isAuthenticated()) {
-						if(!toState.abstract && toState.name.indexOf('user') === -1) {
-							authService.setReturnState(toState, toParams);
-						}
-						$state.transitionTo('user.login');
-						event.preventDefault();
-					}
+					console.log(event.name, toState.name);
 				})
 			$rootScope.$on('$stateChangeSuccess',
 				function(event, toState, toParams, fromState, fromParams){
-					console.log('Loaded state', toState.name);
-					if(!fromState.abstract && toState.name.indexOf('user') === -1) {
-						authService.setReturnState(fromState, fromParams)
-					}
+					console.log(event.name, toState.name);
 				})
 			$rootScope.$on('$stateChangeError',
 				function(event, toState, toParams, fromState, fromParams, error){
-					console.error('stateChangeError', error)
+					console.error(event.name, error)
 					console.log(event, toState, toParams, fromState, fromParams)
 				})
 			$rootScope.$on('$stateNotFound',
 				function(event, unfoundState, fromState, fromParams){
-					console.warn('State not found', unfoundState.to);
+					console.warn(event.name, unfoundState.to);
 					console.warn(unfoundState.toParams);
 					console.warn(unfoundState.options); // {inherit:false} + default options
 				})
