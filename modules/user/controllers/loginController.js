@@ -2,9 +2,9 @@
 
 angular
 	.module('user')
-	.controller('loginController', [
+	.controller('LoginController', [
 		'$scope','$rootScope','$state','authService','AUTH_EVENTS',
-		function($scope, $rootScope, $state, authService, AUTH_EVENTS) {
+		function LoginController($scope, $rootScope, $state, authService, AUTH_EVENTS) {
 			$scope.rememberMe = true;
 			$scope.credentials = {};
 
