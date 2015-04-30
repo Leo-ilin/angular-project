@@ -11,7 +11,7 @@ App.DEBUG = true;
 
 	basket.require(
 		{ url: 'vendors/lodash/dist/lodash.underscore.min.js', unique: '2.4.1' },
-		{ url: 'vendors/angular/angular.js', unique: '1.3.10' },
+		{ url: 'vendors/angular/angular.js', unique: '1.3.12' },
 		{ url: 'vendors/angular-animate/angular-animate.min.js' },
 		{ url: 'vendors/angular-local-storage/dist/angular-local-storage.min.js', unique: '0.1.4' },
 		{ url: 'vendors/oclazyload/dist/ocLazyLoad.min.js' },

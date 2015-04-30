@@ -30,6 +30,7 @@ angular
 
 			var _responseError = function (rejection) {
 				$rootScope.$broadcast({
+					0: AUTH_EVENTS.notAuthenticated,
 					401: AUTH_EVENTS.notAuthenticated,
 					403: AUTH_EVENTS.notAuthorized,
 					419: AUTH_EVENTS.sessionTimeout,

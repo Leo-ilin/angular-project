@@ -4,8 +4,8 @@ angular
 		'localStorageService',
 		function(localStorageService){
 			"use strict";
-			this.init = function(){
-				return this.id = localStorageService.get('sessionId')
+			this.init = function(id){
+				return this.id = id || localStorageService.get('sessionId')
 			}
 			this.create = function (sessionId, userId) {
 				this.id = sessionId;
@@ -19,17 +19,43 @@ angular
 		}
 	])
 	.factory('authService', [
+		'$rootScope',
 		'apiService',
 		'localStorageService',
 		'Session',
 		'$q',
-		function(apiService, localStorageService, Session, $q) {
+		'AUTH_EVENTS',
+		function($rootScope, apiService, localStorageService, Session, $q, AUTH_EVENTS) {
 			"use strict";
 
 			var factory = {};
 
-			factory.init = function() {
-				return Session.init()
+			factory.init = function(id) {
+				return Session.init(id)
+			}
+
+			//Helper method for check if user authenticated
+			factory.check = function check() {
+				var deferred = $q.defer();
+				apiService.login.isAuthorized()
+					.then(
+					function(response) {
+						if(response.sessionId) {
+							Session.create(response.sessionId, response.id || null);
+							localStorageService.set('sessionId', response.sessionId);
+							$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
+							deferred.resolve(true);
+						} else {
+							$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
+							deferred.resolve(false);
+						}
+					},
+					function(errResponse) {
+						deferred.reject(errResponse);
+					}
+				)
+
+				return deferred.promise
 			}
 
 			factory.login = function login(credentials, remember) {
@@ -43,10 +69,12 @@ angular
 						if(remember) {
 							localStorageService.set('sessionId', response.sessionId);
 						}
-						Session.create(response.sessionId, null);
+						Session.create(response.sessionId, response.id || null);
+						$rootScope.$broadcast(AUTH_EVENTS.loginSuccess);
 						deferred.resolve(response);
 					},
 					function(errResponse){
+						$rootScope.$broadcast(AUTH_EVENTS.loginFailed);
 						deferred.reject(errResponse);
 					}
 				)
@@ -55,9 +83,17 @@ angular
 			}
 
 			factory.logout = function logout(){
+				var deferred = $q.defer();
 				localStorageService.remove('sessionId');
 				Session.destroy();
-				return apiService.login.logout()
+				apiService.login.logout().then(
+					function(response){
+						$rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
+						deferred.resolve(response);
+					}
+				)
+
+				return deferred.promise
 			}
 
 			factory.isAuthenticated = function isAuthenticated(){

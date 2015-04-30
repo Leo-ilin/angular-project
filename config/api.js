@@ -29,6 +29,11 @@ angular
 					name: 'logout',
 					operation: 'post',
 					path: 'logout'
+				},
+				{
+					name: 'isAuthorized',
+					operation: 'get',
+					path: 'is-authorized'
 				}
 			])
 

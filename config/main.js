@@ -8,19 +8,37 @@ angular
 		'common.services'
 	])
 	.constant('DEBUG', App.DEBUG)
+	.constant('STATE', {
+		'LOGIN': 'user.login',
+		'HOME': 'index'
+	})
 	.config(['$httpProvider', function($httpProvider) {
 		$httpProvider.interceptors.push('authInterceptor');
 	}])
 	.run([
-		'$rootScope', 'authService', '$state', 'AUTH_EVENTS',
-		function authHandler($rootScope, authService, $state, AUTH_EVENTS){
-			var loginState = 'user.login',
-				homeState = 'index';
-
+		'$rootScope', 'authService', '$state', 'AUTH_EVENTS', 'STATE', 'cfpLoadingBar',
+		function authHandler($rootScope, authService, $state, AUTH_EVENTS, STATE, cfpLoadingBar){
 			authService.init();
 
+			var start = cfpLoadingBar.start;
+			var complete = cfpLoadingBar.complete;
+
+			$rootScope.$on('$stateChangeStart', start)
+			$rootScope.$on('$stateChangeSuccess', complete)
+			$rootScope.$on('$stateChangeError', complete)
+
+			var goBack = function(){
+				complete();
+				var lastState = authService.getReturnState();
+				if(lastState){
+					return $state.go(lastState.name, lastState.params)
+				} else {
+					return $state.go(STATE.HOME, {})
+				}
+			}
+
 			$rootScope.$on(AUTH_EVENTS.notAuthenticated, function(e){
-				$state.go(loginState);
+				$state.go(STATE.LOGIN);
 			})
 
 			$rootScope.$on(AUTH_EVENTS.notAuthorized, function(e){
@@ -30,29 +48,41 @@ angular
 			$rootScope.$on(AUTH_EVENTS.logoutSuccess, function(e){
 				//on user logout remember current state
 				authService.setReturnState($rootScope.$state.current, $rootScope.$state.params)
-				$state.go(loginState);
+				complete();
+				$state.go(STATE.LOGIN);
 			})
 
-			$rootScope.$on(AUTH_EVENTS.loginSuccess, function(e){
-				var lastState = authService.getReturnState();
-				if(lastState){
-					$state.go(lastState.name, lastState.params)
-				} else {
-					$state.go(homeState, {})
-				}
-			})
+			$rootScope.$on(AUTH_EVENTS.loginSuccess, goBack)
 
 			$rootScope.$on('$stateChangeStart',
-				function(event, toState, toParams, fromState, fromParams){
-					//AUTHENTICATION CHECK
-					if(toState.authenticate !== false && !authService.isAuthenticated()) {
-						//auth required
-						if (!fromState.abstract && toState.name.indexOf('user') < 0) {
-							//remember not abstract and not user module's states
-							authService.setReturnState(fromState, fromParams)
+				function(event, toState, toParams, fromState, fromParams) {
+					if(!toState.abstract && (toState.name.indexOf('user') === -1)) {
+						//remember not abstract and not user module's states
+						authService.setReturnState(toState, toParams)
+					}
+
+					if(toState.name.indexOf(STATE.LOGIN) > -1) {
+						if(authService.isAuthenticated()) {
+							event.preventDefault();
+							//notify
+							goBack();
+						} else {
+							authService.check().then(
+								function(ok) {
+									event.preventDefault();
+									//notify
+									goBack();
+								}
+							)
 						}
-						$state.transitionTo(loginState);
-						event.preventDefault();
+					} else {
+						//AUTHENTICATION CHECK
+						if (toState.authenticate !== false && !authService.isAuthenticated()) {
+							//auth required
+							event.preventDefault();
+							complete();
+							$state.go(STATE.LOGIN);
+						}
 					}
 				})
 
@@ -62,17 +92,5 @@ angular
 						$rootScope.pageTitle = toState.pageTitle ? toState.pageTitle : ''
 					}
 				})
-		}
-	])
-	.run([
-		'$rootScope', 'cfpLoadingBar',
-		function loadingBarHandler($rootScope, cfpLoadingBar) {
-
-			var start = cfpLoadingBar.start;
-			var complete = cfpLoadingBar.complete;
-
-			$rootScope.$on('$stateChangeStart', start)
-			$rootScope.$on('$stateChangeSuccess', complete)
-			$rootScope.$on('$stateChangeError', complete)
 		}
 	])
